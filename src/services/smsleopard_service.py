@@ -1,7 +1,6 @@
 import requests
 import time
 import re
-import base64
 from typing import Dict, List, Optional, Tuple
 from config import Config
 from utils.logger import setup_logger
@@ -12,21 +11,32 @@ class SMSLeopardService:
     """Service class for interacting with SMSLeopard API"""
     
     def __init__(self):
-        self.api_key = Config.SMSLEOPARD_API_KEY
-        self.api_secret = Config.SMSLEOPARD_API_SECRET
-        self.api_url = Config.SMSLEOPARD_API_URL
+        self.api_key = Config.API_KEY
+        self.api_secret = Config.API_SECRET
+        self.access_token = Config.ACCESS_TOKEN
+        self.api_url = Config.API_URL
         
-        # Create base64 encoded credentials for Basic auth
+        # Set up headers for SMSLeopard API - Use Basic Auth with API key and secret
         if self.api_key and self.api_secret:
-            credentials = f"{self.api_key}:{self.api_secret}"
-            encoded_credentials = base64.b64encode(credentials.encode()).decode()
+            import base64
+            credentials = base64.b64encode(f"{self.api_key}:{self.api_secret}".encode()).decode()
             self.headers = {
-                'Authorization': f'Basic {encoded_credentials}',
-                'Content-Type': 'application/json'
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': f'Basic {credentials}'
+            }
+        elif self.access_token:
+            # Fallback to Bearer token if no API secret
+            self.headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self.access_token}'
             }
         else:
-            self.headers = {'Content-Type': 'application/json'}
-            logger.warning("SMSLeopard API key or secret not configured")
+            self.headers = {}
+        
+        if not self.api_key or not self.api_secret:
+            logger.warning("SMSLeopard API key or API secret not configured")
     
     def send_sms(self, 
                  phone_numbers: List[str], 
@@ -46,7 +56,7 @@ class SMSLeopardService:
             API response dictionary
         """
         if not self.api_key or not self.api_secret:
-            raise ValueError("SMSLeopard API key or secret not configured")
+            raise ValueError("SMSLeopard API key or API secret not configured")
         
         if not phone_numbers:
             raise ValueError("Phone numbers list cannot be empty")
@@ -64,6 +74,9 @@ class SMSLeopardService:
         if schedule_time:
             payload['schedule_time'] = schedule_time
         logger.info(f"Sending SMS to {len(phone_numbers)} recipients")
+        logger.info(f"API URL: {self.api_url}/sms/send")
+        logger.info(f"Headers: {self.headers}")
+        logger.info(f"Payload: {payload}")
         try:
             response = requests.post(
                 f"{self.api_url}/sms/send",
@@ -73,7 +86,9 @@ class SMSLeopardService:
             )
             response.raise_for_status()
             result = response.json()
-            logger.info(f"SMS sent successfully. Message ID: {result.get('message_id')}")
+            logger.info(f"Response status: {response.status_code}")
+            logger.info(f"Response headers: {dict(response.headers)}")
+            logger.info(f"SMS sent successfully. Response: {result}")
             return result
         except requests.exceptions.RequestException as e:
             logger.error(f"Failed to send SMS: {str(e)}")
@@ -118,10 +133,10 @@ class SMSLeopardService:
             Status information dictionary
         """
         if not self.api_key or not self.api_secret:
-            raise ValueError("SMSLeopard API key or secret not configured")
+            raise ValueError("SMSLeopard API key or API secret not configured")
         try:
             response = requests.get(
-                f"{self.api_url}/sms/status/{message_id}",
+                f"{self.api_url}/status/{message_id}",
                 headers=self.headers,
                 timeout=30
             )
@@ -139,10 +154,10 @@ class SMSLeopardService:
             Balance information dictionary
         """
         if not self.api_key or not self.api_secret:
-            raise ValueError("SMSLeopard API key or secret not configured")
+            raise ValueError("SMSLeopard API key or API secret not configured")
         try:
             response = requests.get(
-                f"{self.api_url}/account/balance",
+                f"{self.api_url}/balance",
                 headers=self.headers,
                 timeout=30
             )

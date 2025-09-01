@@ -8,9 +8,16 @@ class Config:
     """Configuration class for the SMS application"""
     
     # SMSLeopard API Configuration
-    SMSLEOPARD_API_KEY = os.getenv('SMSLEOPARD_API_KEY', '')
-    SMSLEOPARD_API_SECRET = os.getenv('SMSLEOPARD_API_SECRET', '')
-    SMSLEOPARD_API_URL = os.getenv('SMSLEOPARD_API_URL', 'https://api.smsleopard.com/v1')
+    API_KEY = os.getenv('API_key', '')
+    API_SECRET = os.getenv('API_secret', '')
+    ACCESS_TOKEN = os.getenv('Access_token', '')
+    ENVIRONMENT = os.getenv('Environment', 'sandbox')
+    
+    # Set API URL based on environment
+    if ENVIRONMENT == 'sandbox':
+        API_URL = 'https://api.smsleopard.com/v1'  # SMSLeopard doesn't have separate sandbox URL
+    else:
+        API_URL = 'https://api.smsleopard.com/v1'
     
     # Webhook Configuration
     WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET', '')

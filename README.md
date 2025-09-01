@@ -74,8 +74,9 @@ fruitguard-sms/
    cp env.example .env
    
    # Edit .env file with your actual SMSLeopard credentials
-   # SMSLEOPARD_API_KEY=your_actual_api_key
-   # SMSLEOPARD_API_SECRET=your_actual_api_secret
+   # API_key=your_actual_api_key
+   # API_secret=your_actual_api_secret
+   # Access_token=your_actual_access_token
    ```
 
 ## Configuration
@@ -84,9 +85,11 @@ Create a `.env` file in the root directory with the following variables:
 
 ```env
 # SMSLeopard API Configuration
-SMSLEOPARD_API_KEY=your_smsleopard_api_key_here
-SMSLEOPARD_API_SECRET=your_smsleopard_api_secret_here
-SMSLEOPARD_API_URL=https://api.smsleopard.com/v1
+Name=fruitguard-sms
+Environment=sandbox
+API_key=your_smsleopard_api_key_here
+API_secret=your_smsleopard_api_secret_here
+Access_token=your_smsleopard_access_token_here
 
 # Webhook Configuration
 WEBHOOK_SECRET=your_webhook_secret_here
