@@ -1,0 +1,81 @@
+### FruitGuard SMS API Testing Requests
+@message_id = 1;
+### Health Check
+GET http://localhost:5000/health
+
+
+### Send SMS
+POST http://localhost:5000/sms/send
+Content-Type: application/json
+
+{
+    "phone_numbers": ["+254742252910"],
+    "message": "Alert: FruitGuard detected potential threat in your orchard!",
+    "sender_id": "FruitGuard",
+    "max_retries": 3
+}
+
+### Send SMS with Schedule
+POST http://localhost:5000/sms/send
+Content-Type: application/json
+
+{
+    "phone_numbers": ["1234567890"],
+    "message": "Scheduled alert: Daily orchard status report",
+    "sender_id": "FruitGuard",
+    "schedule_time": "2024-01-15T08:00:00Z"
+}
+
+### Get SMS Status
+GET http://localhost:5000/sms/status/{{message_id}}
+
+### Get Account Balance
+GET http://localhost:5000/account/balance
+
+### Validate Phone Numbers
+POST http://localhost:5000/sms/validate
+Content-Type: application/json
+
+{
+    "phone_numbers": ["1234567890", "invalid", "+1234567890", "555-123-4567"]
+}
+
+### Delivery Report Webhook (for testing)
+POST http://localhost:5000/dr
+Content-Type: application/json
+
+{
+    "message_id": "test_message_123",
+    "status": "delivered",
+    "to": "+1234567890",
+    "timestamp": "2024-01-15T10:30:00Z"
+}
+
+### Error Cases
+
+### Missing Required Fields
+POST http://localhost:5000/sms/send
+Content-Type: application/json
+
+{
+    "phone_numbers": ["1234567890"]
+}
+
+### Invalid Phone Numbers
+POST http://localhost:5000/sms/send
+Content-Type: application/json
+
+{
+    "phone_numbers": ["invalid", "abc"],
+    "message": "Test message"
+}
+
+### Empty Message
+POST http://localhost:5000/sms/send
+Content-Type: application/json
+
+{
+    "phone_numbers": ["1234567890"],
+    "message": ""
+}
+
