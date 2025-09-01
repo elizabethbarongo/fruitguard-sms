@@ -35,6 +35,10 @@ fruitguard-sms/
 ├── env.example            # Environment variables template
 ├── test_kenyan_numbers.py # Kenyan phone number testing
 ├── sms_example.py         # Usage examples
+├── test_fixed_service.py  # Test the fixed SMS service
+├── test_api_endpoints.py  # Test API endpoints and authentication
+├── test_default_sender.py # Test common sender IDs
+├── quick_sms_test.py      # Quick SMS test with approved sender ID
 └── README.md              # This file
 ```
 
@@ -76,7 +80,7 @@ fruitguard-sms/
    # Edit .env file with your actual SMSLeopard credentials
    # API_key=your_actual_api_key
    # API_secret=your_actual_api_secret
-   # Access_token=your_actual_access_token
+   # Access_token=your_actual_access_token (optional)
    ```
 
 ## Configuration
@@ -108,6 +112,64 @@ LOG_LEVEL=INFO
 DEFAULT_SENDER_ID=FruitGuard
 MAX_RETRIES=3
 RETRY_DELAY=5
+```
+
+## ⚠️ Important: SMSLeopard Authentication
+
+**The service now uses Basic Authentication with API key and secret** (not Bearer token as before).
+
+### Required Credentials:
+- **API Key**: Your SMSLeopard API key
+- **API Secret**: Your SMSLeopard API secret
+- **Access Token**: Optional (used as fallback if API secret is not available)
+
+### Sender ID Requirements:
+- **All sender IDs must be pre-approved** in your SMSLeopard account
+- "FruitGuard" is not automatically approved - you must request it
+- Check your SMSLeopard dashboard for approved sender IDs
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### 1. 401 Unauthorized Error
+**Problem**: Authentication failed
+**Solution**: 
+- Ensure both `API_key` and `API_secret` are set in your `.env` file
+- Verify credentials are correct in your SMSLeopard dashboard
+- Check if your account is active and has credits
+
+#### 2. Sender ID Not Recognized
+**Problem**: "Unrecognized sender id. Sender ID [X] is not assigned to the account"
+**Solution**:
+- Log into SMSLeopard dashboard
+- Check "Sender IDs" or "Brand Names" section
+- Use an approved sender ID or request approval for "FruitGuard"
+- Add credits to your account if balance is 0
+
+#### 3. API Endpoint Not Found
+**Problem**: 404 errors on SMS endpoints
+**Solution**:
+- The service uses the correct endpoints: `/sms/send`, `/balance`, `/status`
+- Ensure you're using the latest version of the code
+- Check SMSLeopard API documentation for any recent changes
+
+### Testing Your Setup
+
+Use the provided test scripts to diagnose issues:
+
+```bash
+# Test basic service functionality
+python test_fixed_service.py
+
+# Test API endpoints and authentication
+python test_api_endpoints.py
+
+# Test common sender IDs
+python test_default_sender.py
+
+# Quick test once you have an approved sender ID
+python quick_sms_test.py
 ```
 
 ## Kenyan Phone Number Support
@@ -166,7 +228,7 @@ Get delivery status of a specific SMS.
 
 ### Get Account Balance
 ```
-GET /account/balance
+GET /balance
 ```
 Get current account balance.
 
@@ -344,5 +406,15 @@ This project is licensed under the MIT License.
 For issues and questions:
 1. Check the logs for error details
 2. Verify SMSLeopard API configuration and credentials
-3. Test with the provided `requests.http` file
-4. Create an issue in the repository
+3. Test with the provided test scripts
+4. Check your SMSLeopard dashboard for approved sender IDs
+5. Create an issue in the repository
+
+## Recent Updates
+
+### v2.0.0 - Authentication Fixes
+- ✅ Fixed SMSLeopard authentication from Bearer token to Basic Auth
+- ✅ Corrected API endpoints (`/balance`, `/status`)
+- ✅ Added comprehensive testing scripts
+- ✅ Improved error handling and troubleshooting
+- ✅ Added sender ID validation and testing
